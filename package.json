@@ -1,0 +1,32 @@
+{
+  "name": "table_game",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/doomin03/table_game.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/doomin03/table_game/issues"
+  },
+  "homepage": "https://github.com/doomin03/table_game#readme",
+  "description": "",
+  "dependencies": {
+    "three": "^0.181.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.0",
+    "@types/three": "^0.181.0",
+    "typescript": "^5.9.3",
+    "vite": "^7.2.2"
+  }
+}
