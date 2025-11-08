@@ -11,7 +11,8 @@
 
     "esModuleInterop": true,
     "resolveJsonModule": true,
-
+    "rootDir": "src",
+    "outDir": "dist",
     "lib": ["ES2020", "DOM", "DOM.Iterable"]
   },
   "include": ["src", "src/vite-env.d.ts"],
