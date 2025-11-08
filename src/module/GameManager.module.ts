@@ -1,11 +1,6 @@
-import { WebGLRenderer, Scene, PerspectiveCamera } from "three";
+import { WebGLRenderer, Scene, PerspectiveCamera, Clock } from "three";
 
-interface GameModule {
-    readonly scene: Scene | null;
-    readonly renderer: WebGLRenderer | null;
-}
-
-export abstract class GameObject implements GameModule {
+export abstract class GameObject {
     scene: Scene | null;
     renderer: WebGLRenderer | null;
 
@@ -13,9 +8,10 @@ export abstract class GameObject implements GameModule {
         this.scene = scene;
         this.renderer = renderer;
     }
+
     abstract Start(): void;
 
-    abstract update(): void;
+    abstract update(delta: number): void;
 
 }
 
@@ -26,11 +22,14 @@ export class GameManager {
     camera: PerspectiveCamera | null = null
 
 
+    objects: GameObject[] | null = null;
+
+
     constructor() {
-        this.init()
+        this.initData()
     }
 
-    init() {
+    initData() {
         this.renderer = new WebGLRenderer({ antialias: true });
         this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         this.renderer.setSize(window.innerWidth, window.innerHeight);
@@ -48,11 +47,33 @@ export class GameManager {
         this.scene.add(this.camera);
     }
 
-    start(){
-        
+
+
+    setInitialObject<T extends GameObject>(object: new (...args: any) => T): GameManager {
+        const objectInstance = new object(this.scene, this.renderer);
+        this.objects?.push(objectInstance);
+        return this;
     }
 
-    setEvent() {
+    start(): void {
+        const clock = new Clock();
+
+        if(!this.objects)
+            throw new Error("연결된 게임 오브젝트가 존재하지 않음");
+
+        this.objects.forEach((e: GameObject) => {
+            e.Start();
+        });
+
+        this.renderer?.setAnimationLoop(() => {
+            const delta = clock.getDelta();
+            this.objects?.forEach((e: GameObject) => {
+                e.update(delta);
+            });
+        });
+    }
+
+    setEvent(): void {
         window.addEventListener('resize', () => {
             if (!this.renderer || !this.camera || !this.scene) return
             this.camera.updateProjectionMatrix();
