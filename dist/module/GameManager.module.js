@@ -1,4 +1,5 @@
-import { WebGLRenderer, Scene, PerspectiveCamera, Clock } from "three";
+import { WebGLRenderer, Scene, PerspectiveCamera, Clock, AmbientLight } from "three";
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 export class GameObject {
     constructor(scene, renderer) {
         this.scene = scene;
@@ -12,6 +13,7 @@ export class GameManager {
         this.camera = null;
         this.objects = null;
         this.initData();
+        this.setEvent();
     }
     initData() {
         this.renderer = new WebGLRenderer({ antialias: true });
@@ -19,7 +21,12 @@ export class GameManager {
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.append(this.renderer.domElement);
         this.scene = new Scene();
+        const light = new AmbientLight(0xffffff, 1);
+        this.scene.add(light);
         this.camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        this.camera.position.set(0, 3, -5);
+        //TODO테스트
+        const controls = new OrbitControls(this.camera, this.renderer.domElement);
         this.scene.add(this.camera);
     }
     setInitialObject(object) {
@@ -27,7 +34,13 @@ export class GameManager {
         this.objects?.push(objectInstance);
         return this;
     }
-    start() {
+    setInitialObjects(objects) {
+        this.objects = objects.map((e) => {
+            return new e(this.scene, this.renderer);
+        });
+        return this;
+    }
+    runGame() {
         const clock = new Clock();
         if (!this.objects)
             throw new Error("연결된 게임 오브젝트가 존재하지 않음");
@@ -39,6 +52,7 @@ export class GameManager {
             this.objects?.forEach((e) => {
                 e.update(delta);
             });
+            this.renderer?.render(this.scene, this.camera);
         });
     }
     setEvent() {

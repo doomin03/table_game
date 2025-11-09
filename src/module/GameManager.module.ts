@@ -1,4 +1,7 @@
-import { WebGLRenderer, Scene, PerspectiveCamera, Clock } from "three";
+import { WebGLRenderer, Scene, PerspectiveCamera, Clock, AmbientLight } from "three";
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+
+
 
 export abstract class GameObject {
     scene: Scene | null;
@@ -27,6 +30,7 @@ export class GameManager {
 
     constructor() {
         this.initData()
+        this.setEvent()
     }
 
     initData() {
@@ -37,12 +41,19 @@ export class GameManager {
 
         this.scene = new Scene();
 
+        const light = new AmbientLight(0xffffff, 1);
+        this.scene.add(light);
+
         this.camera = new PerspectiveCamera(
             75,
             window.innerWidth / window.innerHeight,
             0.1,
             1000,
         );
+        this.camera.position.set(0, 3, -5);
+
+        //TODO테스트
+        const controls = new OrbitControls(this.camera, this.renderer.domElement);
 
         this.scene.add(this.camera);
     }
@@ -55,7 +66,14 @@ export class GameManager {
         return this;
     }
 
-    start(): void {
+    setInitialObjects(objects: (new (...args: any) => GameObject)[]): GameManager {
+        this.objects = objects.map((e)=>{
+            return new e(this.scene, this.renderer);
+        });
+        return this;
+    }
+
+    runGame(): void {
         const clock = new Clock();
 
         if(!this.objects)
