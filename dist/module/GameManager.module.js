@@ -24,7 +24,7 @@ export class GameManager {
         const light = new AmbientLight(0xffffff, 1);
         this.scene.add(light);
         this.camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        this.camera.position.set(0, 3, -5);
+        this.camera.position.set(0, 3, -2);
         //TODO테스트
         const controls = new OrbitControls(this.camera, this.renderer.domElement);
         this.scene.add(this.camera);

@@ -1,6 +1,6 @@
 import { GameObject } from "../../module/GameManager.module";
 import { GameTextureLoader } from "../../module/GameTextureLoader.module";
-import { PlaneGeometry, MeshStandardMaterial, Mesh, NearestFilter } from "three";
+import { BoxGeometry, MeshStandardMaterial, Mesh, Vector3 } from "three";
 
 
 export class GroundGenerater extends GameObject {
@@ -9,9 +9,13 @@ export class GroundGenerater extends GameObject {
     loader: GameTextureLoader | null = null;
 
 
-    groundGeometry: PlaneGeometry | null = null;
+    groundGeometry: BoxGeometry | null = null;
     width: number = 1;
     height: number = 1;
+
+
+    depth = 4;
+    standardVector = new Vector3(0, 0, 0);
 
     Start(): void {
         this.setGround();
@@ -22,31 +26,42 @@ export class GroundGenerater extends GameObject {
     }
 
 
-    setGround(){
+    setGround() {
         this.loader = new GameTextureLoader();
         this.loader.setPath('../../../assets/Snow/');
 
         const colorTex = this.loader.getLoader('color.jpg');
-        const dispTex = this.loader.getLoader('disp.png');
         const normTex = this.loader.getLoader('norm.png');
 
-        colorTex.magFilter = NearestFilter;
-        dispTex.magFilter = NearestFilter;
-        dispTex.anisotropy = this.renderer!.capabilities.getMaxAnisotropy();
-
-        this.groundGeometry = new PlaneGeometry(this.width, this.height, 100, 100);
+        this.groundGeometry = new BoxGeometry(this.width, 0.5, this.height);
 
         this.groundMaterial = new MeshStandardMaterial({
             map: colorTex,
-            displacementMap: dispTex,
             normalMap: normTex,
-            displacementScale: 0.05,
+
         });
 
-        const ground = new Mesh(this.groundGeometry, this.groundMaterial);
-        ground.rotation.x = -Math.PI / 2;
-        this.scene!.add(ground);
-        this.groundArray.push(ground);
+        this.generator();
     }
+
+    generator() {
+        const row = 2 * this.depth + 1;
+        const cx = this.standardVector.x;
+        const cz = this.standardVector.y;
+
+        for (let i = 0; i < row * row; i += row) {
+            const r = i / row;
+            for (let j = 0; j < row; j++) {
+                const dx = j - this.depth;
+                const dz = r - this.depth;
+
+                const ground = new Mesh(this.groundGeometry!, this.groundMaterial!);
+                ground.position.set(cx + dx, 0.5, cz + dz);
+                this.groundArray.push(ground);
+                this.scene!.add(ground);
+            }
+        }
+    }
+
 
 }

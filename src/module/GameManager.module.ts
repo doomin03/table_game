@@ -50,7 +50,7 @@ export class GameManager {
             0.1,
             1000,
         );
-        this.camera.position.set(0, 3, -5);
+        this.camera.position.set(0, 3, -2);
 
         //TODO테스트
         const controls = new OrbitControls(this.camera, this.renderer.domElement);
