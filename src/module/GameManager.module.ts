@@ -1,7 +1,10 @@
-import { WebGLRenderer, Scene, PerspectiveCamera, Clock, AmbientLight } from "three";
+import { WebGLRenderer, Scene, PerspectiveCamera, Clock, AmbientLight, Mesh } from "three";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
+class GameMesh extends Mesh {
+    script: GameObject | null = null;
 
+}
 
 export abstract class GameObject {
     scene: Scene | null;
@@ -11,11 +14,17 @@ export abstract class GameObject {
         this.scene = scene;
         this.renderer = renderer;
     }
-
     abstract Start(): void;
-
     abstract update(delta: number): void;
+}
 
+export abstract class Pawn extends GameObject {
+    gameObject: GameMesh | null = null;
+
+    constructor(scene: Scene, renderer: WebGLRenderer){
+        super(scene, renderer);
+        this.gameObject!.script = this
+    }
 }
 
 

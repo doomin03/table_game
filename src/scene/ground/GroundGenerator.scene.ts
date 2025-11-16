@@ -1,9 +1,9 @@
-import { GameObject } from "../../module/GameManager.module";
+import { Pawn } from "../../module/GameManager.module";
 import { GameTextureLoader } from "../../module/GameTextureLoader.module";
 import { BoxGeometry, MeshStandardMaterial, Mesh, Vector3 } from "three";
 
 
-export class GroundGenerater extends GameObject {
+export class GroundGenerater extends Pawn {
     groundArray: Mesh[] = [];
     groundMaterial: MeshStandardMaterial | null = null;
     loader: GameTextureLoader | null = null;
