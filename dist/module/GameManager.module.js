@@ -1,19 +1,18 @@
-import { WebGLRenderer, Scene, PerspectiveCamera, Clock, AmbientLight } from "three";
+import { WebGLRenderer, Scene, PerspectiveCamera, Clock, AmbientLight, } from "three";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-export class GameObject {
-    constructor(scene, renderer) {
-        this.scene = scene;
-        this.renderer = renderer;
-    }
-}
+import { GameObject, Pawn, } from "./GameObject.module";
 export class GameManager {
     constructor() {
         this.renderer = null;
         this.scene = null;
         this.camera = null;
-        this.objects = null;
+        this.objects = [];
+        if (GameManager.instance) {
+            return GameManager.instance;
+        }
         this.initData();
         this.setEvent();
+        GameManager.instance = this;
     }
     initData() {
         this.renderer = new WebGLRenderer({ antialias: true });
@@ -31,14 +30,27 @@ export class GameManager {
     }
     setInitialObject(object) {
         const objectInstance = new object(this.scene, this.renderer);
+        objectInstance.awake();
         this.objects?.push(objectInstance);
         return this;
     }
     setInitialObjects(objects) {
-        this.objects = objects.map((e) => {
-            return new e(this.scene, this.renderer);
+        if (!this.objects)
+            this.objects = [];
+        objects.forEach((Ctor) => {
+            const obj = new Ctor(this.scene, this.renderer);
+            obj.awake();
+            this.objects.push(obj);
         });
         return this;
+    }
+    instantiate(object) {
+        const objectInstance = new object(this.scene, this.renderer);
+        objectInstance.awake();
+        objectInstance.init();
+        this.scene.add(objectInstance.gameObject);
+        this.objects.push(objectInstance);
+        return objectInstance;
     }
     runGame() {
         const clock = new Clock();
@@ -59,9 +71,11 @@ export class GameManager {
         window.addEventListener('resize', () => {
             if (!this.renderer || !this.camera || !this.scene)
                 return;
+            this.camera.aspect = window.innerWidth / window.innerHeight;
             this.camera.updateProjectionMatrix();
             this.renderer.setSize(window.innerWidth, window.innerHeight);
             this.renderer.render(this.scene, this.camera);
         });
     }
 }
+GameManager.instance = null;

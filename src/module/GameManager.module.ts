@@ -1,46 +1,30 @@
-import { WebGLRenderer, Scene, PerspectiveCamera, Clock, AmbientLight, Mesh } from "three";
+import { WebGLRenderer, Scene, PerspectiveCamera, Clock, AmbientLight, } from "three";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { GameObject, Pawn, } from "./GameObject.module"
 
-class GameMesh extends Mesh {
-    script: GameObject | null = null;
-
-}
-
-export abstract class GameObject {
-    scene: Scene | null;
-    renderer: WebGLRenderer | null;
-
-    constructor(scene: Scene, renderer: WebGLRenderer) {
-        this.scene = scene;
-        this.renderer = renderer;
-    }
-    abstract Start(): void;
-    abstract update(delta: number): void;
-}
-
-export abstract class Pawn extends GameObject {
-    gameObject: GameMesh | null = null;
-
-    constructor(scene: Scene, renderer: WebGLRenderer){
-        super(scene, renderer);
-        this.gameObject!.script = this
-    }
-}
 
 
 export class GameManager {
+    private static instance: GameManager | null = null;
     renderer: WebGLRenderer | null = null;
     scene: Scene | null = null;
     camera: PerspectiveCamera | null = null
 
 
-    objects: GameObject[] | null = null;
+    objects: GameObject[] | null = [];
 
 
     constructor() {
+        if (GameManager.instance) {
+            return GameManager.instance;
+        }
+
         this.initData()
         this.setEvent()
+
+        GameManager.instance = this;
     }
+
 
     initData() {
         this.renderer = new WebGLRenderer({ antialias: true });
@@ -71,21 +55,36 @@ export class GameManager {
 
     setInitialObject<T extends GameObject>(object: new (...args: any) => T): GameManager {
         const objectInstance = new object(this.scene, this.renderer);
+        objectInstance.awake();
         this.objects?.push(objectInstance);
         return this;
     }
 
     setInitialObjects(objects: (new (...args: any) => GameObject)[]): GameManager {
-        this.objects = objects.map((e)=>{
-            return new e(this.scene, this.renderer);
+        if (!this.objects) this.objects = [];
+
+        objects.forEach((Ctor) => {
+            const obj = new Ctor(this.scene!, this.renderer!);
+            obj.awake();
+            this.objects!.push(obj);
         });
+
         return this;
+    }
+
+    instantiate(object: (new (...args: any) => Pawn)): Pawn {
+        const objectInstance = new object(this.scene, this.renderer);
+        objectInstance.awake();
+        objectInstance.init();
+        this.scene!.add(objectInstance.gameObject!);
+        this.objects!.push(objectInstance);
+        return objectInstance;
     }
 
     runGame(): void {
         const clock = new Clock();
 
-        if(!this.objects)
+        if (!this.objects)
             throw new Error("연결된 게임 오브젝트가 존재하지 않음");
 
         this.objects.forEach((e: GameObject) => {
@@ -104,10 +103,14 @@ export class GameManager {
 
     setEvent(): void {
         window.addEventListener('resize', () => {
-            if (!this.renderer || !this.camera || !this.scene) return
+            if (!this.renderer || !this.camera || !this.scene) return;
+
+            this.camera.aspect = window.innerWidth / window.innerHeight;
             this.camera.updateProjectionMatrix();
+
             this.renderer.setSize(window.innerWidth, window.innerHeight);
             this.renderer.render(this.scene, this.camera);
         });
     }
+
 }

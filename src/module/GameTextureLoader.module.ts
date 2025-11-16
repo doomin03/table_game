@@ -9,7 +9,7 @@ export class GameTextureLoader {
     }
 
     setPath(path: string): GameTextureLoader {
-        this.loader!.setPath(path);
+        this.loader!.setPath(`../../../assets${path}`);
         return this;
     }
 

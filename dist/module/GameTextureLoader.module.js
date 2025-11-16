@@ -5,7 +5,7 @@ export class GameTextureLoader {
         this.loader = new TextureLoader();
     }
     setPath(path) {
-        this.loader.setPath(path);
+        this.loader.setPath(`../../../assets${path}`);
         return this;
     }
     getLoader(texture) {
