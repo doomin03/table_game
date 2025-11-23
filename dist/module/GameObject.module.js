@@ -1,17 +1,18 @@
 import { WebGLRenderer, Scene, Mesh, Material, BufferGeometry } from "three";
-import { GameTextureLoader } from "../module/GameTextureLoader.module";
-class Component {
-}
-class GameMesh extends Mesh {
+import { BaseComponent } from "./component/BaseComponent.component";
+export class GameMesh extends Mesh {
     constructor() {
         super(...arguments);
         this.script = null;
-        this.components = null;
+        this.components = [];
     }
-    setComponet(component) {
+    setComponent(Ctor, ...args) {
+        const component = new Ctor(this, ...args);
         this.components.push(component);
+        return component;
     }
-    getComponet() {
+    getComponent(Ctor) {
+        return this.components.find(c => c instanceof Ctor);
     }
 }
 export class GameObject {
@@ -29,16 +30,23 @@ export class Pawn extends GameObject {
         this.material = null;
         this.geometry = null;
     }
+    awake() {
+        this.init();
+    }
     init() {
+        if (!this.geometry || !this.material)
+            return;
         this.gameObject = new GameMesh(this.geometry, this.material);
         this.gameObject.script = this;
     }
-    setGeomatry(geometry) {
-        if (!this.gameObject)
-            this.geometry = geometry;
+    start() {
+        this.gameObject?.components.forEach((e) => {
+            e.start();
+        });
     }
-    setMatrial(material, parameters) {
-        if (!this.material)
-            this.material = new material(parameters);
+    update(delta) {
+        this.gameObject?.components.forEach((e) => {
+            e.update();
+        });
     }
 }

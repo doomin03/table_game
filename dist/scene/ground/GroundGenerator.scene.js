@@ -12,9 +12,9 @@ export class GroundGenerater extends GameObject {
         this.depth = 4;
         this.standardVector = null;
     }
-    Start() {
+    start() {
         this.standardVector = new Vector3(0, 0, 0);
-        this.gameManager = new GameManager();
+        this.gameManager = GameManager.getInstance();
         this.generator();
     }
     update(delta) {

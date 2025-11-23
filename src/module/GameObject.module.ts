@@ -1,23 +1,26 @@
 import { WebGLRenderer, Scene, Mesh, Material, BufferGeometry } from "three";
-import type { MeshStandardMaterialParameters } from "three";
-import { GameTextureLoader } from "../module/GameTextureLoader.module";
+import { BaseComponent } from "./component/BaseComponent.component";
 
 
 
-class Component {
 
-}
-
-class GameMesh extends Mesh {
+export class GameMesh extends Mesh {
     script: GameObject | null = null;
-    components: Component[] | null = null;
+    components: BaseComponent[] = [];
 
-    setComponet<T extends Component>(component: GameObject): void{
-        this.components!.push(component)
+    setComponent<T extends BaseComponent>(
+        Ctor: new (mesh: GameMesh, ...args: any[]) => T,
+        ...args: any[]
+    ): T {
+        const component = new Ctor(this, ...args);
+        this.components.push(component);
+        return component;
     }
 
-    getComponet(){
-        
+    getComponent<T extends BaseComponent>(
+        Ctor: new (...args: any[]) => T
+    ): T | undefined {
+        return this.components!.find(c => c instanceof Ctor) as T | undefined;
     }
 }
 
@@ -29,10 +32,10 @@ export abstract class GameObject {
         this.scene = scene;
         this.renderer = renderer;
     }
-    awake(){
+    awake() {
 
     }
-    abstract Start(): void;
+    abstract start(): void;
     abstract update(delta: number): void;
 }
 
@@ -40,26 +43,29 @@ export abstract class Pawn extends GameObject {
     gameObject: GameMesh | null = null;
     material: Material | null = null;
     geometry: BufferGeometry | null = null;
-    
-    constructor(scene: Scene, renderer: WebGLRenderer){
+
+    constructor(scene: Scene, renderer: WebGLRenderer) {
         super(scene, renderer);
     }
-    init():void{
-        this.gameObject = new GameMesh(this.geometry!, this.material!);
+    awake(): void {
+        this.init()
+    }
+    init(): void {
+        if (!this.geometry || !this.material)
+            return
+        this.gameObject = new GameMesh(this.geometry, this.material);
         this.gameObject!.script = this;
     }
 
-    setGeomatry(geometry: BufferGeometry){
-        if(!this.gameObject)
-            this.geometry = geometry;
+    start(): void {
+        this.gameObject?.components.forEach((e)=>{
+            e.start();
+        })    
     }
 
-    setMatrial(
-        material: new (parameters: MeshStandardMaterialParameters) => Material, 
-        parameters: MeshStandardMaterialParameters
-    ){
-        if(!this.material)
-            this.material = new material(parameters);
+    update(delta: number): void {
+        this.gameObject?.components.forEach((e)=>{
+            e.update();
+        })    
     }
-
 }

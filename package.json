@@ -23,6 +23,7 @@
   "homepage": "https://github.com/doomin03/table_game#readme",
   "description": "",
   "dependencies": {
+    "cannon-es": "^0.20.0",
     "three": "^0.181.0"
   },
   "devDependencies": {
