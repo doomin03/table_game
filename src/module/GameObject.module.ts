@@ -1,4 +1,5 @@
-import { WebGLRenderer, Scene, Mesh, Material, BufferGeometry } from "three";
+import { WebGLRenderer, Scene, Mesh, Material, BufferGeometry, BoxGeometry, MeshStandardMaterial } from "three";
+import type { CollideEvent } from "../module/component/gravity/Gravity.component"
 import { BaseComponent } from "./component/BaseComponent.component";
 
 
@@ -40,32 +41,50 @@ export abstract class GameObject {
 }
 
 export abstract class Pawn extends GameObject {
-    gameObject: GameMesh | null = null;
-    material: Material | null = null;
-    geometry: BufferGeometry | null = null;
+    gameObject!: GameMesh;
 
     constructor(scene: Scene, renderer: WebGLRenderer) {
         super(scene, renderer);
     }
     awake(): void {
-        this.init()
+        const geometry = this.createGeometry();   // 기본 or override
+        const material = this.createMaterial();   // 기본 or override
+
+        this.gameObject = new GameMesh(geometry, material);
+        this.gameObject.script = this;
+
+        this.onAwake(); // 서브클래스 훅(선택)
     }
+
+    protected createGeometry(): BufferGeometry {
+        return new BoxGeometry(1, 1, 1);
+    }
+
+    protected createMaterial(): Material {
+        return new MeshStandardMaterial({ color: 0xffffff });
+    }
+
+    protected onAwake(): void { }
+
     init(): void {
-        if (!this.geometry || !this.material)
-            return
-        this.gameObject = new GameMesh(this.geometry, this.material);
+        const geometry = this.createGeometry();
+        const material = this.createMaterial();
+        this.gameObject = new GameMesh(geometry, material);
         this.gameObject!.script = this;
     }
 
     start(): void {
-        this.gameObject?.components.forEach((e)=>{
+        this.gameObject?.components.forEach((e) => {
             e.start();
-        })    
+        })
     }
 
     update(delta: number): void {
-        this.gameObject?.components.forEach((e)=>{
-            e.update();
-        })    
+        this.gameObject?.components.forEach((e) => {
+            e.update(delta);
+        })
     }
+
+    onCollisionEnter?(other: GameMesh, e: CollideEvent): void;
+    onCollisionStay?(other: GameMesh, e: CollideEvent): void;
 }

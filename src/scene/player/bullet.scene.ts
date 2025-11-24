@@ -12,7 +12,7 @@ import { GravityMovent } from "../../module/component/movement/GravityMovement.c
 import { Input } from "../../module/input/GameController.module";
 import { Ground } from "../ground/Ground.scene";
 
-export class Player extends Pawn {
+export class Bullet extends Pawn {
     movement!: GravityMovent;
 
     private static readonly SIZE = new Vector3(0.5, 1, 0.5);
@@ -23,7 +23,7 @@ export class Player extends Pawn {
     private speed = 6;
 
     protected createGeometry(): BufferGeometry {
-        const s = Player.SIZE;
+        const s = Bullet.SIZE;
         return new BoxGeometry(s.x, s.y, s.z);
     }
 
@@ -35,11 +35,11 @@ export class Player extends Pawn {
         super.awake();
 
         const go = this.gameObject!;
-        go.position.copy(Player.START_POS);
+        go.position.copy(Bullet.START_POS);
 
         const gravity = go.setComponent(BoxShape);
-        gravity.scale.copy(Player.SIZE);
-        gravity.mass = Player.MASS;
+        gravity.scale.copy(Bullet.SIZE);
+        gravity.mass = Bullet.MASS;
 
         this.movement = go.setComponent(GravityMovent);
     }
@@ -50,17 +50,8 @@ export class Player extends Pawn {
 
     update(delta: number): void {
         super.update(delta);
-        const x =
-            (Input.isDown("KeyD") ? 1 : 0) - (Input.isDown("KeyA") ? 1 : 0);
-        const z =
-            (Input.isDown("KeyS") ? 1 : 0) - (Input.isDown("KeyW") ? 1 : 0);
 
-        this._inputDir.set(x, 0, z);
-
-        if (this._inputDir.lengthSq() === 0) return;
-
-        this.movement.translate(this._inputDir, this.speed * delta);
-
+        
     }
     
     onCollisionEnter(other: GameMesh, e: CollideEvent): void {

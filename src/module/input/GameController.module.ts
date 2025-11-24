@@ -1,14 +1,22 @@
 
-
-
 export class GameInputController {
-    constructor(){
-        this.add()
-    }
+  private keys = new Set<string>();
 
-    add(){
-        window.addEventListener('keydown',(e:Event)=>{
-            console.log(e)
-        });
-    }
+  constructor() {
+    window.addEventListener("keydown", (e: KeyboardEvent) => {
+      this.keys.add(e.code);
+    });
+
+    window.addEventListener("keyup", (e: KeyboardEvent) => {
+      this.keys.delete(e.code);
+    });
+
+    window.addEventListener("blur", () => this.keys.clear());
+  }
+
+  isDown(code: string) {
+    return this.keys.has(code);
+  }
 }
+
+export const Input = new GameInputController();

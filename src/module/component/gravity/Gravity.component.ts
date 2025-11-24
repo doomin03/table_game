@@ -1,8 +1,14 @@
 import { BaseComponent } from "../BaseComponent.component";
-import { GameMesh } from "../../GameObject.module";
+import { GameMesh, Pawn } from "../../GameObject.module";
 import { Vector3, Quaternion } from "three";
-import { Box, Sphere, Shape, Body, Vec3 } from "cannon-es";
+import { Box, Sphere, Shape, Body, Vec3, ContactEquation } from "cannon-es";
 import { GameManager } from "../../GameManager.module";
+
+export type CollideEvent = {
+    type: "collide";
+    body: Body;
+    contact: ContactEquation;
+};
 
 export class Gravity extends BaseComponent {
 
@@ -10,8 +16,18 @@ export class Gravity extends BaseComponent {
     mass: number = 0;
     protected shape!: Shape;
 
+    private _colliding = new Set<number>();
     private _tmpPos = new Vector3();
     private _tmpQuat = new Quaternion();
+
+    private onCollide = (e: CollideEvent) => {
+        const mesh = (e.body as any).mesh;
+        (this.mesh.script as Pawn)?.onCollisionStay?.(mesh, e);
+        if (!this._colliding.has(e.body.id)) {
+            this._colliding.add(e.body.id);
+            (this.mesh.script as Pawn)?.onCollisionEnter?.(mesh, e);
+        }
+    }
 
     constructor(mesh: GameMesh) {
         super(mesh);
@@ -20,7 +36,7 @@ export class Gravity extends BaseComponent {
         return GameManager.getInstance().world;
     }
 
-    public get getBody(){
+    public get getBody() {
         return this._body
     }
 
@@ -34,10 +50,15 @@ export class Gravity extends BaseComponent {
             ),
             mass: this.mass,
         });
+
+        (this._body as any).mesh = this.mesh;
+        this._body.addEventListener("collide", this.onCollide);
         this.world!.addBody(this._body);
     }
 
-    update(delta:number): void {
+
+
+    update(delta: number): void {
         if (!this._body) return;
 
         const p = this._body.position;
@@ -48,6 +69,8 @@ export class Gravity extends BaseComponent {
         this._tmpQuat.set(q.x, q.y, q.z, q.w);
         this.mesh!.quaternion.copy(this._tmpQuat);
     }
+
+
 }
 
 export class BoxShape extends Gravity {

@@ -1,4 +1,4 @@
-import { WebGLRenderer, Scene, Mesh, Material, BufferGeometry } from "three";
+import { WebGLRenderer, Scene, Mesh, Material, BufferGeometry, BoxGeometry, MeshStandardMaterial } from "three";
 import { BaseComponent } from "./component/BaseComponent.component";
 export class GameMesh extends Mesh {
     constructor() {
@@ -26,17 +26,25 @@ export class GameObject {
 export class Pawn extends GameObject {
     constructor(scene, renderer) {
         super(scene, renderer);
-        this.gameObject = null;
-        this.material = null;
-        this.geometry = null;
     }
     awake() {
-        this.init();
+        const geometry = this.createGeometry(); // 기본 or override
+        const material = this.createMaterial(); // 기본 or override
+        this.gameObject = new GameMesh(geometry, material);
+        this.gameObject.script = this;
+        this.onAwake(); // 서브클래스 훅(선택)
     }
+    createGeometry() {
+        return new BoxGeometry(1, 1, 1);
+    }
+    createMaterial() {
+        return new MeshStandardMaterial({ color: 0xffffff });
+    }
+    onAwake() { }
     init() {
-        if (!this.geometry || !this.material)
-            return;
-        this.gameObject = new GameMesh(this.geometry, this.material);
+        const geometry = this.createGeometry();
+        const material = this.createMaterial();
+        this.gameObject = new GameMesh(geometry, material);
         this.gameObject.script = this;
     }
     start() {
@@ -46,7 +54,7 @@ export class Pawn extends GameObject {
     }
     update(delta) {
         this.gameObject?.components.forEach((e) => {
-            e.update();
+            e.update(delta);
         });
     }
 }

@@ -1,6 +1,6 @@
 import { Pawn } from "../../module/GameObject.module";
 import { BoxShape } from "../../module/component/gravity/Gravity.component";
-import { BoxGeometry, MeshStandardMaterial, Mesh, Vector3 } from "three";
+import { BoxGeometry, MeshStandardMaterial, Mesh, Vector3, BufferGeometry, Material } from "three";
 import { GameTextureLoader } from "../../module/GameTextureLoader.module";
 
 export class Ground extends Pawn {
@@ -12,6 +12,14 @@ export class Ground extends Pawn {
     static sharedMaterial: MeshStandardMaterial;
 
     static loaded = false;
+
+    protected createGeometry(): BufferGeometry {
+        return Ground.sharedGeometry;
+    }
+
+    protected createMaterial(): Material {
+        return Ground.sharedMaterial;
+    }
 
     awake(): void {
         if (!Ground.loaded) {
@@ -30,9 +38,6 @@ export class Ground extends Pawn {
             Ground.loaded = true;
         }
 
-        this.geometry = Ground.sharedGeometry;
-        this.material = Ground.sharedMaterial;
-
         super.awake();
 
         const gravity = this.gameObject!.setComponent(BoxShape);
@@ -44,7 +49,7 @@ export class Ground extends Pawn {
     start(): void {
         super.start();
         console.log(1);
-        
+
     }
 
     update(delta: number): void {
