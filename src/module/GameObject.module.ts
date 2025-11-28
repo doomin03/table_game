@@ -1,16 +1,19 @@
-import { WebGLRenderer, Scene, Mesh, Material, BufferGeometry, BoxGeometry, MeshStandardMaterial } from "three";
-import type { CollideEvent } from "../module/component/gravity/Gravity.component"
+import { Mesh, BufferGeometry, Material, Object3D, Vector3 } from "three";
+
 import { BaseComponent } from "./component/BaseComponent.component";
 
+export class TransformData {
+    position = new Vector3(0, 0, 0);
+    scale = new Vector3(1, 1, 1);
+    rotation = new Vector3(0, 0, 0);
+}
 
-
-
-export class GameMesh extends Mesh {
-    script: GameObject | null = null;
-    components: BaseComponent[] = [];
+export class GameObject extends Object3D {
+    public components: BaseComponent[] = [];
+    public transform: TransformData = new TransformData();
 
     setComponent<T extends BaseComponent>(
-        Ctor: new (mesh: GameMesh, ...args: any[]) => T,
+        Ctor: new (obejct: Object3D, ...args: any[]) => T,
         ...args: any[]
     ): T {
         const component = new Ctor(this, ...args);
@@ -25,66 +28,12 @@ export class GameMesh extends Mesh {
     }
 }
 
-export abstract class GameObject {
-    scene: Scene | null;
-    renderer: WebGLRenderer | null;
+export class GameMesh extends GameObject {
+    gameMesh!: Mesh;
 
-    constructor(scene: Scene, renderer: WebGLRenderer) {
-        this.scene = scene;
-        this.renderer = renderer;
+    constructor(geometry: BufferGeometry, material: Material){
+        super();
+        this.gameMesh = new Mesh(geometry, material);
+        super.add(this.gameMesh)
     }
-    awake() {
-
-    }
-    abstract start(): void;
-    abstract update(delta: number): void;
-}
-
-export abstract class Pawn extends GameObject {
-    gameObject!: GameMesh;
-
-    constructor(scene: Scene, renderer: WebGLRenderer) {
-        super(scene, renderer);
-    }
-    awake(): void {
-        const geometry = this.createGeometry();   // 기본 or override
-        const material = this.createMaterial();   // 기본 or override
-
-        this.gameObject = new GameMesh(geometry, material);
-        this.gameObject.script = this;
-
-        this.onAwake(); // 서브클래스 훅(선택)
-    }
-
-    protected createGeometry(): BufferGeometry {
-        return new BoxGeometry(1, 1, 1);
-    }
-
-    protected createMaterial(): Material {
-        return new MeshStandardMaterial({ color: 0xffffff });
-    }
-
-    protected onAwake(): void { }
-
-    init(): void {
-        const geometry = this.createGeometry();
-        const material = this.createMaterial();
-        this.gameObject = new GameMesh(geometry, material);
-        this.gameObject!.script = this;
-    }
-
-    start(): void {
-        this.gameObject?.components.forEach((e) => {
-            e.start();
-        })
-    }
-
-    update(delta: number): void {
-        this.gameObject?.components.forEach((e) => {
-            e.update(delta);
-        })
-    }
-
-    onCollisionEnter?(other: GameMesh, e: CollideEvent): void;
-    onCollisionStay?(other: GameMesh, e: CollideEvent): void;
 }

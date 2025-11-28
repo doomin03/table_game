@@ -1,18 +1,17 @@
-import { GameMesh } from "../GameObject.module";
+import { GameObject } from "../GameObject.module";
 
 
 export abstract class BaseComponent {
-    mesh!: GameMesh;
+    gameObject!: GameObject;
 
-    constructor(mesh: GameMesh){
-        this.mesh = mesh;
+    constructor(object: GameObject){
+        this.gameObject = object;
     }
 
-    start(): void{
+    awake?():void {
 
     }
 
-    update(delta:number): void{
-
-    }
+    abstract start(): void;
+    abstract update(delta:number): void;
 }

@@ -1,9 +1,9 @@
-import { GameObject } from "../../module/GameObject.module";
+import { script } from "../../module/object/GameObject.module";
 import { GameManager } from "../../module/GameManager.module";
 import { Ground } from "./Ground.scene";
 import { GameTextureLoader } from "../../module/GameTextureLoader.module";
 import { Mesh, Vector3 } from "three";
-export class GroundGenerater extends GameObject {
+export class GroundGenerater extends script {
     constructor() {
         super(...arguments);
         this.groundArray = [];

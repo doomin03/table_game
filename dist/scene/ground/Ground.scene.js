@@ -1,4 +1,4 @@
-import { Pawn } from "../../module/GameObject.module";
+import { Pawn } from "../../module/object/GameObject.module";
 import { BoxShape } from "../../module/component/gravity/Gravity.component";
 import { BoxGeometry, MeshStandardMaterial, Mesh, Vector3, BufferGeometry, Material } from "three";
 import { GameTextureLoader } from "../../module/GameTextureLoader.module";

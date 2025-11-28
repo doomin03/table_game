@@ -1,20 +1,26 @@
 import { WebGLRenderer, Scene, PerspectiveCamera, Clock, AmbientLight, } from "three";
 import { World } from "cannon-es"
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { GameObject, Pawn, } from "./GameObject.module"
+import { GameObject } from "../module/GameObject.module";
+import { BaseComponent } from "./component/BaseComponent.component";
+import { ScriptComponent } from "./component/script/Script.component";
 
-
+export type GameContext = {
+    scene: Scene;
+    renderer: WebGLRenderer;
+    world: World;
+};
 
 export class GameManager {
     private static instance: GameManager | null = null;
 
-    renderer: WebGLRenderer | null = null;
-    scene: Scene | null = null;
+    renderer!: WebGLRenderer;
+    scene!: Scene;
+    world!: World;
+
     camera: PerspectiveCamera | null = null;
-    world: World | null = null;
 
-
-    objects: GameObject[] | null = [];
+    objects: GameObject[] = [];
 
 
     private constructor() {
@@ -50,7 +56,7 @@ export class GameManager {
         this.world = new World();
         this.world.gravity.set(0, -9.8, 0);
 
-        //TODO테스트
+
         const controls = new OrbitControls(this.camera, this.renderer.domElement);
 
         this.scene.add(this.camera);
@@ -58,32 +64,56 @@ export class GameManager {
 
 
 
-    setInitialObject<T extends GameObject>(object: new (...args: any) => T): GameManager {
-        const objectInstance = new object(this.scene, this.renderer);
-        objectInstance.awake();
-        this.objects?.push(objectInstance);
+    setInitialObject(object: GameObject): GameManager {
+        const objectInstance = object;
+        objectInstance.components.forEach((e: BaseComponent) => {
+            e.awake?.();
+        })
+        this.objects.push(objectInstance);
+
+        this.scene.add(objectInstance);
         return this;
     }
 
-    setInitialObjects(objects: (new (...args: any) => GameObject)[]): GameManager {
+    setInitialObjects(objects: GameObject[]): GameManager {
         if (!this.objects) this.objects = [];
 
-        objects.forEach((Ctor) => {
-            const obj = new Ctor(this.scene!, this.renderer!);
-            obj.awake();
-            this.objects!.push(obj);
+        objects.forEach((object) => {
+            const objectInstance = object;
+            objectInstance.components.forEach((e: BaseComponent) => {
+                e.awake?.();
+            })
+            this.objects.push(objectInstance);
+
+            this.scene.add(objectInstance);
         });
 
         return this;
     }
 
-    instantiate(object: (new (...args: any) => Pawn)): Pawn {
-        const objectInstance = new object(this.scene, this.renderer);
-        objectInstance.awake();
-        this.scene!.add(objectInstance.gameObject!);
-        this.objects!.push(objectInstance);
+    addObject(object: GameObject): GameObject {
+        const objectInstance = object;
+        objectInstance.components.forEach((e: BaseComponent) => {
+            e.awake?.();
+        })
+        this.objects.push(objectInstance);
+
+        this.scene.add(objectInstance);
+
+        const basicComponents: BaseComponent[] = objectInstance.components.filter(
+            (e: BaseComponent) => !(e instanceof ScriptComponent)
+        );
+        basicComponents.forEach(e => e.start());
+
+        const scriptComponents: ScriptComponent[] = objectInstance.components.filter(
+            (e: BaseComponent) => (e instanceof ScriptComponent)
+        );
+
+        scriptComponents.forEach(e => e.start());
+        
         return objectInstance;
     }
+
 
     runGame(): void {
         const clock = new Clock();
@@ -92,7 +122,15 @@ export class GameManager {
             throw new Error("연결된 게임 오브젝트가 존재하지 않음");
 
         for (let i = 0; i < this.objects!.length; i++) {
-            this.objects![i].start();
+            const basicComponents: BaseComponent[] = this.objects[i].components.filter(
+                (e: BaseComponent) => !(e instanceof ScriptComponent)
+            );
+            basicComponents.forEach(e => e.start());
+
+            const scriptComponents: ScriptComponent[] = this.objects[i].components.filter(
+                (e: BaseComponent) => (e instanceof ScriptComponent)
+            );
+            scriptComponents.forEach(e => e.start());
         }
 
         this.renderer?.setAnimationLoop(() => {
@@ -101,10 +139,12 @@ export class GameManager {
             this.world?.step(1 / 60, delta);
 
             for (let i = 0; i < this.objects!.length; i++) {
-                this.objects![i].update(delta);
+                this.objects![i].components.forEach(
+                    (e: BaseComponent) => e.update(delta)
+                );
             }
 
-            this.renderer?.render(this.scene!, this.camera!);
+            this.renderer.render(this.scene!, this.camera!);
         });
     }
 

@@ -7,8 +7,12 @@ export class GravityMovent extends BaseComponent {
     private body: Body | null = null;
 
     start(): void {
-        const gravityComponent = this.mesh.getComponent(Gravity);
+        const gravityComponent = this.gameObject.getComponent(Gravity);
         this.body = gravityComponent!.getBody;
+    }
+
+    update(delta: number): void {
+        
     }
 
     translate(dir: Vector3, distance: number) {

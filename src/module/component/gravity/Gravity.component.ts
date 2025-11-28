@@ -1,7 +1,7 @@
 import { BaseComponent } from "../BaseComponent.component";
 import { GameMesh, Pawn } from "../../GameObject.module";
-import { Vector3, Quaternion } from "three";
-import { Box, Sphere, Shape, Body, Vec3, ContactEquation } from "cannon-es";
+import { Vector3, Quaternion, Object3D } from "three";
+import { Box, Sphere, Shape, Body, Vec3, ContactEquation} from "cannon-es";
 import { GameManager } from "../../GameManager.module";
 
 export type CollideEvent = {
@@ -22,10 +22,10 @@ export class Gravity extends BaseComponent {
 
     private onCollide = (e: CollideEvent) => {
         const mesh = (e.body as any).mesh;
-        (this.mesh.script as Pawn)?.onCollisionStay?.(mesh, e);
+        (this.gameObject.script as Pawn)?.onCollisionStay?.(mesh, e);
         if (!this._colliding.has(e.body.id)) {
             this._colliding.add(e.body.id);
-            (this.mesh.script as Pawn)?.onCollisionEnter?.(mesh, e);
+            (this.gameObject.script as Pawn)?.onCollisionEnter?.(mesh, e);
         }
     }
 
@@ -44,14 +44,14 @@ export class Gravity extends BaseComponent {
         this._body = new Body({
             shape: this.shape!,
             position: new Vec3(
-                this.mesh!.position.x,
-                this.mesh!.position.y,
-                this.mesh!.position.z
+                this.gameObject!.position.x,
+                this.gameObject!.position.y,
+                this.gameObject!.position.z
             ),
             mass: this.mass,
         });
 
-        (this._body as any).mesh = this.mesh;
+        (this._body as any).mesh = this.gameObject;
         this._body.addEventListener("collide", this.onCollide);
         this.world!.addBody(this._body);
     }
@@ -63,11 +63,11 @@ export class Gravity extends BaseComponent {
 
         const p = this._body.position;
         this._tmpPos.set(p.x, p.y, p.z);
-        this.mesh!.position.copy(this._tmpPos);
+        this.gameObject!.position.copy(this._tmpPos);
 
         const q = this._body.quaternion;
         this._tmpQuat.set(q.x, q.y, q.z, q.w);
-        this.mesh!.quaternion.copy(this._tmpQuat);
+        this.gameObject!.quaternion.copy(this._tmpQuat);
     }
 
 

@@ -1,5 +1,5 @@
 import { BoxGeometry, BufferGeometry, Material, MeshStandardMaterial, Vector3, } from "three";
-import { GameMesh, Pawn } from "../../module/GameObject.module";
+import { GameMesh, Pawn } from "../../module/object/GameObject.module";
 import { BoxShape } from "../../module/component/gravity/Gravity.component";
 import { GravityMovent } from "../../module/component/movement/GravityMovement.component";
 import { Input } from "../../module/input/GameController.module";

@@ -1,7 +1,9 @@
 import { WebGLRenderer, Scene, PerspectiveCamera, Clock, AmbientLight, } from "three";
 import { World } from "cannon-es";
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { GameObject, Pawn, } from "./GameObject.module";
+import { script, Pawn, } from "./object/GameObject.module";
+export class BasePrefab {
+}
 export class GameManager {
     constructor() {
         this.renderer = null;
