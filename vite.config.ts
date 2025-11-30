@@ -1,13 +1,12 @@
-import { defineConfig } from 'vite';
-import path from 'node:path';
+// vite.config.ts
+import { defineConfig } from "vite";
+import path from "path";
 
 export default defineConfig({
-  root: '.',           
-  publicDir: 'public',  
-  build: { outDir: 'dist' },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, 'src')
-    }
-  }
+      "@engine": path.resolve(__dirname, "engine"),
+      "@game": path.resolve(__dirname, "src"),
+    },
+  },
 });

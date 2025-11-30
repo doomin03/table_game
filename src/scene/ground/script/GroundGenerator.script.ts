@@ -1,9 +1,10 @@
-import { ScriptComponent } from "../../../../engine/component/script/Script.component";
-import { GameManager } from "../../../../engine/GameManager.module";
-import { GameObject, GameMesh } from "../../../../engine/object/GameObject.module";
+import { ScriptComponent } from "@engine/component/script/Script.component";
+import { GameManager } from "@engine/GameManager.module";
+import { GameObject, GameMesh } from "@engine/object/GameObject.module";
 import { BoxGeometry, MeshStandardMaterial, Vector3, } from "three";
-import { TextureManager } from "../../../../engine/TextureManager.module";
-import { BoxShape } from "../../../../engine/component/gravity/Gravity.component";
+import { TextureManager } from "@engine/TextureManager.module";
+import { BoxShape } from "@engine/component/gravity/Gravity.component";
+import type { BoxShapeGravityOption } from "@engine/component/gravity/Gravity.component";
 import { Ground } from "./Ground.script";
 
 export class GroundGenerater extends ScriptComponent {
@@ -46,10 +47,12 @@ export class GroundGenerater extends ScriptComponent {
 
     setGround(): GameMesh{
         const ground = new GameMesh(this.groundGeomatry, this.groundMaterial);
-        ground.setComponent(BoxShape);
+        ground.setComponent<BoxShape, [BoxShapeGravityOption]>(BoxShape, {
+            mass: 0,
+            scale: this.groundScle,
+        });
         ground.setComponent(Ground);
-        ground.getComponent(BoxShape)!.mass = 0;
-        ground.getComponent(BoxShape)!.scale = this.groundScle;
+
         return ground
     }
 

@@ -14,15 +14,25 @@ export type GameContext = {
 export class GameManager {
     private static instance: GameManager | null = null;
 
-    renderer!: WebGLRenderer;
-    scene!: Scene;
-    world!: World;
+    private _renderer!: WebGLRenderer;
+    private _scene!: Scene;
+    private _world!: World;
 
     camera: PerspectiveCamera | null = null;
 
     objects: GameObject[] = [];
 
+    public get renderer() {
+        return this._renderer;
+    }
 
+    public get scene() {
+        return this._scene;
+    }
+
+    public get world() {
+        return this._world;
+    }
     private constructor() {
         this.initData();
         this.setEvent();
@@ -36,15 +46,15 @@ export class GameManager {
     }
 
     initData() {
-        this.renderer = new WebGLRenderer({ antialias: true });
-        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
-        document.body.append(this.renderer.domElement);
+        this._renderer = new WebGLRenderer({ antialias: true });
+        this._renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        this._renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.append(this._renderer.domElement);
 
-        this.scene = new Scene();
+        this._scene = new Scene();
 
         const light = new AmbientLight(0xffffff, 1);
-        this.scene.add(light);
+        this._scene.add(light);
 
         this.camera = new PerspectiveCamera(
             75,
@@ -53,13 +63,13 @@ export class GameManager {
             1000,
         );
         this.camera.position.set(0, 3, -2);
-        this.world = new World();
-        this.world.gravity.set(0, -9.8, 0);
+        this._world = new World();
+        this._world.gravity.set(0, -9.8, 0);
 
 
-        const controls = new OrbitControls(this.camera, this.renderer.domElement);
+        const controls = new OrbitControls(this.camera, this._renderer.domElement);
 
-        this.scene.add(this.camera);
+        this._scene.add(this.camera);
     }
 
 
@@ -71,7 +81,7 @@ export class GameManager {
         })
         this.objects.push(objectInstance);
 
-        this.scene.add(objectInstance);
+        this._scene.add(objectInstance);
         return this;
     }
 
@@ -85,7 +95,7 @@ export class GameManager {
             })
             this.objects.push(objectInstance);
 
-            this.scene.add(objectInstance);
+            this._scene.add(objectInstance);
         });
         return this;
     }
@@ -97,7 +107,7 @@ export class GameManager {
         })
         this.objects.push(objectInstance);
 
-        this.scene.add(objectInstance);
+        this._scene.add(objectInstance);
 
         const basicComponents: BaseComponent[] = objectInstance.components.filter(
             (e: BaseComponent) => !(e instanceof ScriptComponent)
@@ -109,7 +119,7 @@ export class GameManager {
         );
 
         scriptComponents.forEach(e => e.start?.());
-        
+
         return objectInstance;
     }
 
@@ -132,10 +142,10 @@ export class GameManager {
             scriptComponents.forEach(e => e.start?.());
         }
 
-        this.renderer?.setAnimationLoop(() => {
+        this._renderer?.setAnimationLoop(() => {
             const delta = clock.getDelta();
 
-            this.world?.step(1 / 60, delta);
+            this._world?.step(1 / 60, delta);
 
             for (let i = 0; i < this.objects!.length; i++) {
                 this.objects![i].components.forEach(
@@ -143,19 +153,19 @@ export class GameManager {
                 );
             }
 
-            this.renderer.render(this.scene!, this.camera!);
+            this._renderer.render(this._scene!, this.camera!);
         });
     }
 
     setEvent(): void {
         window.addEventListener('resize', () => {
-            if (!this.renderer || !this.camera || !this.scene) return;
+            if (!this._renderer || !this.camera || !this._scene) return;
 
             this.camera.aspect = window.innerWidth / window.innerHeight;
             this.camera.updateProjectionMatrix();
 
-            this.renderer.setSize(window.innerWidth, window.innerHeight);
-            this.renderer.render(this.scene, this.camera);
+            this._renderer.setSize(window.innerWidth, window.innerHeight);
+            this._renderer.render(this._scene, this.camera);
         });
     }
 

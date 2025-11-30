@@ -12,14 +12,27 @@ export type CollideEvent = {
     contact: ContactEquation;
 };
 
+export interface BaseGravityOption {
+    mass: number;
+    collisionResponse?: boolean;
+}
+
+export interface BoxShapeGravityOption extends BaseGravityOption {
+    scale: Vector3;
+}
+
+export interface SphereShapeGravityOption extends BaseGravityOption {
+    radius: number;
+}
+
 export class Gravity extends BaseComponent {
 
     private _body!: Body;
     public mass: number = 0;
+    public collisionResponse?: boolean;
     protected shape!: Shape;
 
     private _colliding = new Set<number>();
-    private _tmpQuat = new Quaternion();
 
     private onCollide = (e: CollideEvent) => {
         const mesh = (e.body as any).mesh;
@@ -37,8 +50,10 @@ export class Gravity extends BaseComponent {
         }
     }
 
-    constructor(mesh: GameObject) {
+    constructor(mesh: GameObject, option: BaseGravityOption) {
         super(mesh);
+        this.collisionResponse = option.collisionResponse ?? true;
+        this.mass = option.mass;
     }
     private get world() {
         return GameManager.getInstance().world;
@@ -57,6 +72,7 @@ export class Gravity extends BaseComponent {
                 this.gameObject!.transform.position.z
             ),
             mass: this.mass,
+            collisionResponse: this.collisionResponse
         });
 
         (this._body as any).mesh = this.gameObject;
@@ -78,6 +94,22 @@ export class Gravity extends BaseComponent {
         this.gameObject.quaternion.copy(this.gameObject.transform.rotation);
     }
 
+    syncTransformToBody() {
+        const p = this.gameObject.transform.position;
+        this._body.position.set(p.x, p.y, p.z);
+
+        const q = this.gameObject.transform.rotation;
+        this._body.quaternion.set(q.x, q.y, q.z, q.w);
+    }
+
+    public setMass(mass: number) {
+        this.mass = mass;
+        if (!this._body) return;
+        this._body.mass = mass;
+        this._body.type = mass === 0 ? Body.STATIC : Body.DYNAMIC;
+        this._body.updateMassProperties();
+        this._body.wakeUp();
+    }
 
 }
 
@@ -85,8 +117,9 @@ export class BoxShape extends Gravity {
 
     scale: Vector3 = new Vector3(1, 1, 1);
 
-    constructor(mesh: GameObject) {
-        super(mesh);
+    constructor(mesh: GameObject, option: BoxShapeGravityOption) {
+        super(mesh, option);
+        this.scale = option.scale;
     }
 
     start(): void {
@@ -103,8 +136,9 @@ export class BoxShape extends Gravity {
 
 export class SphereGravity extends Gravity {
     radius: number = 1;
-    constructor(mesh: GameObject) {
-        super(mesh);
+    constructor(mesh: GameObject, option: SphereShapeGravityOption) {
+        super(mesh, option);
+        this.radius = option.radius
     }
 
     start(): void {

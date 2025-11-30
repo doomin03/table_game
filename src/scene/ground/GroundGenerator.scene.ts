@@ -1,4 +1,4 @@
-import { GameObject } from "../../../engine/object/GameObject.module";
+import { GameObject } from "@engine/object/GameObject.module";
 import { GroundGenerater } from "./script/GroundGenerator.script";
 
 
