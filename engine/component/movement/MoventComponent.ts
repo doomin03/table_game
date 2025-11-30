@@ -3,12 +3,11 @@ import { Body, Vec3 } from "cannon-es";
 import { Gravity } from "../gravity/Gravity.component";
 import { Vector3 } from "three";
 
-export class GravityMovent extends BaseComponent {
-    private body: Body | null = null;
+export class MoventComponent extends BaseComponent {
 
     start(): void {
-        const gravityComponent = this.gameObject.getComponent(Gravity);
-        this.body = gravityComponent!.getBody;
+
+
     }
 
     update(delta: number): void {
@@ -16,13 +15,12 @@ export class GravityMovent extends BaseComponent {
     }
 
     translate(dir: Vector3, distance: number) {
-        if (!this.body) return;
         if (dir.lengthSq() === 0) return;
 
         const d = dir.clone().normalize();
 
-        this.body.position.x += d.x * distance;
-        this.body.position.y += d.y * distance;
-        this.body.position.z += d.z * distance;
+        this.gameObject.transform.position.x += d.x * distance;
+        this.gameObject.transform.position.x += d.y * distance;
+        this.gameObject.transform.position.x += d.z * distance;
     }
 }

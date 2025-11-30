@@ -1,11 +1,11 @@
-import { Mesh, BufferGeometry, Material, Object3D, Vector3 } from "three";
+import { Mesh, BufferGeometry, Material, Object3D, Vector3, Quaternion } from "three";
 
-import { BaseComponent } from "./component/BaseComponent.component";
+import { BaseComponent } from "../component/BaseComponent.component";
 
 export class TransformData {
     position = new Vector3(0, 0, 0);
     scale = new Vector3(1, 1, 1);
-    rotation = new Vector3(0, 0, 0);
+    rotation = new Quaternion();
 }
 
 export class GameObject extends Object3D {
@@ -13,7 +13,7 @@ export class GameObject extends Object3D {
     public transform: TransformData = new TransformData();
 
     setComponent<T extends BaseComponent>(
-        Ctor: new (obejct: Object3D, ...args: any[]) => T,
+        Ctor: new (obejct: GameObject, ...args: any[]) => T,
         ...args: any[]
     ): T {
         const component = new Ctor(this, ...args);

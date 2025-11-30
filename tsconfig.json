@@ -11,10 +11,15 @@
 
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    "rootDir": "src",
+    "baseUrl": ".",
+    "paths": {
+      "@engine/*": ["engine/*"],
+      "@game/*": ["src/*"]
+    },
+
     "outDir": "dist",
     "lib": ["ES2020", "DOM", "DOM.Iterable"]
   },
-  "include": ["src", "src/vite-env.d.ts"],
+  "include": ["src",  "engine", "src/vite-env.d.ts"],
   "exclude": ["node_modules", "dist", "vite.config.ts"]
 }

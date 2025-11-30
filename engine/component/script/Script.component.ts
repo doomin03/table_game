@@ -1,4 +1,4 @@
-import { GameObject } from "../../GameObject.module";
+import { GameObject } from "../../object/GameObject.module";
 import { BaseComponent } from "../BaseComponent.component";
 import type { CollideEvent } from "../../component/gravity/Gravity.component"
 

@@ -1,7 +1,7 @@
 import { WebGLRenderer, Scene, PerspectiveCamera, Clock, AmbientLight, } from "three";
 import { World } from "cannon-es"
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { GameObject } from "../module/GameObject.module";
+import { GameObject } from "./object/GameObject.module";
 import { BaseComponent } from "./component/BaseComponent.component";
 import { ScriptComponent } from "./component/script/Script.component";
 
@@ -87,7 +87,6 @@ export class GameManager {
 
             this.scene.add(objectInstance);
         });
-
         return this;
     }
 
@@ -103,13 +102,13 @@ export class GameManager {
         const basicComponents: BaseComponent[] = objectInstance.components.filter(
             (e: BaseComponent) => !(e instanceof ScriptComponent)
         );
-        basicComponents.forEach(e => e.start());
+        basicComponents.forEach(e => e.start?.());
 
         const scriptComponents: ScriptComponent[] = objectInstance.components.filter(
             (e: BaseComponent) => (e instanceof ScriptComponent)
         );
 
-        scriptComponents.forEach(e => e.start());
+        scriptComponents.forEach(e => e.start?.());
         
         return objectInstance;
     }
@@ -125,12 +124,12 @@ export class GameManager {
             const basicComponents: BaseComponent[] = this.objects[i].components.filter(
                 (e: BaseComponent) => !(e instanceof ScriptComponent)
             );
-            basicComponents.forEach(e => e.start());
+            basicComponents.forEach(e => e.start?.());
 
             const scriptComponents: ScriptComponent[] = this.objects[i].components.filter(
                 (e: BaseComponent) => (e instanceof ScriptComponent)
             );
-            scriptComponents.forEach(e => e.start());
+            scriptComponents.forEach(e => e.start?.());
         }
 
         this.renderer?.setAnimationLoop(() => {
@@ -140,7 +139,7 @@ export class GameManager {
 
             for (let i = 0; i < this.objects!.length; i++) {
                 this.objects![i].components.forEach(
-                    (e: BaseComponent) => e.update(delta)
+                    (e: BaseComponent) => e.update?.(delta)
                 );
             }
 

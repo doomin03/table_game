@@ -1,4 +1,4 @@
-import { GameObject } from "../GameObject.module";
+import { GameObject } from "../object/GameObject.module";
 
 
 export abstract class BaseComponent {
@@ -12,6 +12,6 @@ export abstract class BaseComponent {
 
     }
 
-    abstract start(): void;
-    abstract update(delta:number): void;
+    start?(): void;
+    update?(delta:number): void;
 }

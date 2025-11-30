@@ -6,9 +6,9 @@ import {
     Vector3,
 } from "three";
 
-import { GameMesh, Pawn } from "../../module/GameObject.module";
+import { GameMesh, Pawn } from "../../module/object/GameObject.module";
 import { BoxShape, type CollideEvent } from "../../module/component/gravity/Gravity.component";
-import { GravityMovent } from "../../module/component/movement/GravityMovement.component";
+import { GravityMovent } from "../../module/component/movement/MoventComponent";
 import { Input } from "../../module/input/GameController.module";
 import { Ground } from "../ground/Ground.scene";
 
