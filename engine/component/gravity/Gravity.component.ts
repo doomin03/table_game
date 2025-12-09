@@ -94,13 +94,7 @@ export class Gravity extends BaseComponent {
         this.gameObject.quaternion.copy(this.gameObject.transform.rotation);
     }
 
-    syncTransformToBody() {
-        const p = this.gameObject.transform.position;
-        this._body.position.set(p.x, p.y, p.z);
 
-        const q = this.gameObject.transform.rotation;
-        this._body.quaternion.set(q.x, q.y, q.z, q.w);
-    }
 
     public setMass(mass: number) {
         this.mass = mass;

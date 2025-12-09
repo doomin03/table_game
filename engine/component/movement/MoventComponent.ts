@@ -25,13 +25,12 @@ export class MoventComponent extends BaseComponent {
     translate(dir: Vector3, distance: number) {
         if (dir.lengthSq() === 0) return;
 
-        const d = dir.clone().normalize();
-
-        this.gameObject.transform.position.x += d.x * distance;
-        this.gameObject.transform.position.y += d.y * distance;
-        this.gameObject.transform.position.z += d.z * distance;
+        const d = dir.clone().normalize()
 
         const gravity = this.getGravity();
-        gravity?.syncTransformToBody();
+        gravity!.getBody.position.x += d.x * distance;
+        gravity!.getBody.position.y += d.y * distance;
+        gravity!.getBody.position.z += d.z * distance;
+
     }
 }

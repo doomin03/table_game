@@ -41,6 +41,8 @@ export class Player extends Pawn {
     onCollisionEnter(other: GameMesh, e: CollideEvent): void {
         if(other.getComponent(Ground)){
             other.getComponent(Ground)!.returnBullet(10);
+            console.log(other.getComponent(Ground)!.gameObject.position);
+            
         }
     }
 }

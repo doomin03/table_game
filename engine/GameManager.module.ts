@@ -108,18 +108,6 @@ export class GameManager {
         this.objects.push(objectInstance);
 
         this._scene.add(objectInstance);
-
-        const basicComponents: BaseComponent[] = objectInstance.components.filter(
-            (e: BaseComponent) => !(e instanceof ScriptComponent)
-        );
-        basicComponents.forEach(e => e.start?.());
-
-        const scriptComponents: ScriptComponent[] = objectInstance.components.filter(
-            (e: BaseComponent) => (e instanceof ScriptComponent)
-        );
-
-        scriptComponents.forEach(e => e.start?.());
-
         return objectInstance;
     }
 
@@ -135,11 +123,13 @@ export class GameManager {
                 (e: BaseComponent) => !(e instanceof ScriptComponent)
             );
             basicComponents.forEach(e => e.start?.());
-
+    
             const scriptComponents: ScriptComponent[] = this.objects[i].components.filter(
                 (e: BaseComponent) => (e instanceof ScriptComponent)
             );
             scriptComponents.forEach(e => e.start?.());
+            console.log(scriptComponents);
+            
         }
 
         this._renderer?.setAnimationLoop(() => {

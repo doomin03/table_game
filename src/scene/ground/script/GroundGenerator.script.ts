@@ -38,7 +38,7 @@ export class GroundGenerater extends ScriptComponent {
                 const dx = j - this.depth;
                 const dz = r - this.depth;
                 const ground = this.setGround();
-                ground.transform.position.set(cx + dx, 0.5, cz + dz);
+                ground.transform.position.set(cx + dx, 0, cz + dz);
                 GameManager.getInstance().addObject(ground);
                 this.groundArray.push(ground);
             }
@@ -47,11 +47,12 @@ export class GroundGenerater extends ScriptComponent {
 
     setGround(): GameMesh{
         const ground = new GameMesh(this.groundGeomatry, this.groundMaterial);
+        ground.setComponent(Ground);
         ground.setComponent<BoxShape, [BoxShapeGravityOption]>(BoxShape, {
             mass: 0,
             scale: this.groundScle,
         });
-        ground.setComponent(Ground);
+        
 
         return ground
     }

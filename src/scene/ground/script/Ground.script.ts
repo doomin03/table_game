@@ -7,6 +7,8 @@ export class Ground extends Pawn {
     width: number = 1;
     height: number = 1;
 
+    first:boolean = true;
+
     public get bullet() {
         return this._bullets;
     }
@@ -16,12 +18,17 @@ export class Ground extends Pawn {
     }
 
     update(delta: number): void {
-
+        
+        
 
         const gravity = this.gameObject.getComponent(Gravity);
         if (gravity && this._bullets <= 0) {
-            gravity.setMass(1);
-            console.log(1234);
+            if(this.first) {
+                gravity.setMass(10);
+                
+                this.first = false;
+            }
+            
         }
     }
 
